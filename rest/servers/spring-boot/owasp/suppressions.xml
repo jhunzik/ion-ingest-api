@@ -13,21 +13,4 @@
     Contains the suppressions that should not be inherited by dependent projects.
 -->
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.2.xsd">
-    <suppress>
-        <!--
-            [Eric Lessard, 4 July 2019]
-            OWASP infers that jackson-databind-nullable 0.1.0 is related to Jackson 0.1.0
-            dependencies and flags vulnerabilities on cpe:2.3:a:fasterxml:jackson:0.1.0 and
-            cpe:2.3:a:fasterxml:jackson-databind:0.1.0, which do not exist.
-            GitHub issue https://github.com/jeremylong/DependencyCheck/issues/2047 was opened to
-            get this vulnerability resolved in OWASP/DependencyCheck itself. This suppression should
-            be removed when that issue has been resolved.
-        -->
-        <notes><![CDATA[
-        file name: jackson-databind-nullable-0.1.0.jar
-        ]]></notes>
-        <gav regex="true">^org\.openapitools:jackson-databind-nullable:0.1.0$</gav>
-        <cpe>cpe:/a:fasterxml:jackson:0.1.0</cpe>
-        <cpe>cpe:/a:fasterxml:jackson-databind:0.1.0</cpe>
-    </suppress>
 </suppressions>

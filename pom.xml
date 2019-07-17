@@ -60,7 +60,7 @@
         <gson.version>2.6.1</gson.version>
         <hibernate.validator.version>6.0.16.Final</hibernate.validator.version>
         <immutables.version>2.7.1</immutables.version>
-        <jackson.databind.nullable.version>0.1.0</jackson.databind.nullable.version>
+        <jackson.databind.nullable.version>0.2.0</jackson.databind.nullable.version>
         <jackson.databind.version>2.9.9.1</jackson.databind.version>
         <jackson.version>2.9.9</jackson.version>
         <micrometer.version>1.0.6</micrometer.version>
@@ -546,7 +546,7 @@
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
-                <version>5.0.0</version>
+                <version>5.1.1</version>
                 <configuration>
                     <failBuildOnCVSS>4</failBuildOnCVSS>
                     <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
