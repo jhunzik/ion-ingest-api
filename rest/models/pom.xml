@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.connexta.ion.ingest</groupId>
         <artifactId>ingest-api-rest</artifactId>
-        <version>0.2.0</version>
+        <version>0.2.1-SNAPSHOT</version>
     </parent>
 
     <name>Ingest Rest Models</name>
