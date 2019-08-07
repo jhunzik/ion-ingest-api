@@ -74,7 +74,7 @@
         <failsafe.plugin.version>3.0.0-M3</failsafe.plugin.version>
         <gpg-plugin.version>1.6</gpg-plugin.version>
         <jar.plugin.version>3.1.1</jar.plugin.version>
-        <javadoc.plugin.version>3.1.0</javadoc.plugin.version>
+        <javadoc.plugin.version>3.1.1</javadoc.plugin.version>
         <license.mave.plugin.version>3.0</license.mave.plugin.version>
         <maven-servicemix-depends.version>1.4.0</maven-servicemix-depends.version>
         <openapi.generator.plugin.version>4.0.2</openapi.generator.plugin.version>
