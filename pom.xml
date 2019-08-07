@@ -48,7 +48,7 @@
         <hibernate.validator.version>6.0.16.Final</hibernate.validator.version>
         <immutables.version>2.7.1</immutables.version>
         <jackson.databind.nullable.version>0.2.0</jackson.databind.nullable.version>
-        <jackson.databind.version>2.9.9.1</jackson.databind.version>
+        <jackson.databind.version>2.9.9.3</jackson.databind.version>
         <jackson.version>2.9.9</jackson.version>
         <micrometer.version>1.0.6</micrometer.version>
         <okio.version>1.13.0</okio.version>
