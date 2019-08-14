@@ -51,8 +51,19 @@ paths:
                   format: binary
                   minLength: 1
                   maxLength: 14316557655
+                correlationId:
+                  description: >
+                    A unique client provided identifier for the product to be ingested which will allow the client to
+                    retrieve the product and/or any other information associated with it in the future. Only one product
+                    can exist with a given correlation identifier. This means that a request to ingest a product with an
+                    existing correlation id will result in a failure with no changes to the existing product or
+                    associated information.
+                  type: string
+                  minLength: 1
+                  maxLength: 256
               required:
                 - file
+                - correlationId
       responses:
         '202':
           $ref: '#/components/responses/Accepted'
