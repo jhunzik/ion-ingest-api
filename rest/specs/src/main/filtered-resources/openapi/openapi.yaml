@@ -9,7 +9,7 @@ openapi: 3.0.2
 
 info:
   version: ${project.version}
-  title: ION Ingest API
+  title: Ingest API
   description: >
     The Ingest API is defined to provide clients with the ability to
     ingest products for validation, transformation and storage.
@@ -69,7 +69,7 @@ components:
   responses:
     Accepted:
       description: >
-        The ingest request was accepted and ION will begin processing and storing the product.
+        The ingest request was accepted.
       headers:
         'Content-Version':
           $ref: '#/components/headers/ContentVersion'

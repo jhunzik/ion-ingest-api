@@ -25,7 +25,7 @@
         </license>
     </licenses>
 
-    <groupId>com.connexta.ion.ingest</groupId>
+    <groupId>com.connexta.ingest</groupId>
     <artifactId>ingest-api</artifactId>
     <version>0.3.1-SNAPSHOT</version>
     <packaging>pom</packaging>

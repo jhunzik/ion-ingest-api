@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.connexta.ion.ingest</groupId>
+        <groupId>com.connexta.ingest</groupId>
         <artifactId>ingest-api</artifactId>
         <version>0.3.1-SNAPSHOT</version>
     </parent>
@@ -22,7 +22,6 @@
     <packaging>pom</packaging>
 
     <properties>
-        <rest.server.url>https://ion:1234</rest.server.url>
         <rest.package>${root.package}.rest</rest.package>
         <rest.models.package>${root.package}.rest.models</rest.models.package>
     </properties>

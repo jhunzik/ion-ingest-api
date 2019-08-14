@@ -1,4 +1,4 @@
-# ION Ingest API
+# Ingest API
 
 ## Prerequisites
 * Java 11
