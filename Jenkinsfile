@@ -49,7 +49,7 @@ pipeline {
                       env.PR_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD~1').trim()
                       } // close catch block
                   }  // close script tag
-                } // close with credentials tag
+                } // close with-credentials tag
                 if (params.RELEASE == true) {
                   if (params.RELEASE_VERSION != 'NA') {
                       env.RELEASE_VERSION = params.RELEASE_VERSION
@@ -70,9 +70,10 @@ pipeline {
                       env.NEXT_VERSION = getDevelopmentVersion()
                   }
                   echo("Release parameters: release-version: ${env.RELEASE_VERSION} release-tag: ${env.RELEASE_TAG} next-version: ${env.NEXT_VERSION}")
-                }
-            }
-        }
+                } // close "if" statement
+              } // close script tag
+            }  // close steps tag
+        } // close stage tag
         stage('Full Build') {
             when { expression { env.CHANGE_ID == null } }
             parallel {
