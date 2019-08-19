@@ -23,6 +23,5 @@
 
     <modules>
         <module>spring</module>
-        <module>spring-boot</module>
     </modules>
 </project>
