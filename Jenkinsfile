@@ -33,77 +33,40 @@ pipeline {
         disableConcurrentBuilds()
         timestamps()
     }
-    triggers {
-        /*
-          Restrict nightly builds to master branch, all others will be built on change only.
-          Note: The BRANCH_NAME will only work with a multi-branch job using the github-branch-source
-        */
-        cron(env.BRANCH_NAME == "master" ? "H H(21-23) * * *" : "")
-    }
     stages {
         stage('Setup') {
             steps {
                 script {
-                    slackSend color: 'good', message: "STARTED: ${JOB_NAME} ${BUILD_NUMBER} ${BUILD_URL}"
-                    withCredentials([usernameColonPassword(credentialsId: 'cxbot', variable: 'GITHUB_TOKEN')]) {
-                        postCommentIfPR("Internal build has been started. Your results will be available at completion. See build progress in [legacy Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${GITHUB_TOKEN}")
-                        script {
-                            //  Clear existing status checks
-                            def jsonBlob = getGithubStatusJsonBlob("pending", "${BUILD_URL}display/redirect", "Full Build In Progress...", "CX Jenkins/Full Build")
-
-                            try {
-                                //  Check to see if there are multiple parents for the commit. (merged)
-                                sh(script: 'if [ `git cat-file -p HEAD | head -n 3 | grep parent | wc -l` -gt 1 ]; then exit 1; else exit 0; fi')
-                                //  No error was thrown -> we called exit 0 -> HEAD is not a merge commit/doesn't have multiple parents
-                                env.PR_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-                            } catch (err) {
-                                //  An error was thrown -> we called exit 1 -> HEAD is a merge commit/has multiple parents
-                                env.PR_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD~1').trim()
-                            }
-
-                            postStatusToHash("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
-                        }
-                    }
-                    if (params.RELEASE == true) {
-                        if (params.RELEASE_VERSION != 'NA') {
-                            env.RELEASE_VERSION = params.RELEASE_VERSION
-                        } else {
-                            echo ("Setting release version to ${getBaseVersion()}")
-                            env.RELEASE_VERSION = getBaseVersion()
-                        }
-                        if (params.RELEASE_TAG != 'NA') {
-                            env.RELEASE_TAG = params.RELEASE_TAG
-                        } else {
-                            echo("Setting release tag")
-                            env.RELEASE_TAG = "${env.GITHUB_REPONAME}-${env.RELEASE_VERSION}"
-                        }
-                        if (params.NEXT_VERSION != 'NA') {
-                            env.NEXT_VERSION = params.NEXT_VERSION
-                        } else {
-                            echo("Setting next version")
-                            env.NEXT_VERSION = getDevelopmentVersion()
-                        }
-                        echo("Release parameters: release-version: ${env.RELEASE_VERSION} release-tag: ${env.RELEASE_TAG} next-version: ${env.NEXT_VERSION}")
+                    try {
+                        //  Check to see if there are multiple parents for the commit. (merged)
+                        sh(script: 'if [ `git cat-file -p HEAD | head -n 3 | grep parent | wc -l` -gt 1 ]; then exit 1; else exit 0; fi')
+                        //  No error was thrown -> we called exit 0 -> HEAD is not a merge commit/doesn't have multiple parents
+                        env.PR_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                    } catch (err) {
+                        //  An error was thrown -> we called exit 1 -> HEAD is a merge commit/has multiple parents
+                        env.PR_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD~1').trim()
                     }
                 }
-            }
-        }
-        // The incremental build will be triggered only for PRs. It will build the differences between the PR and the target branch
-        stage('Incremental Build') {
-            when {
-                allOf {
-                    expression { env.CHANGE_ID != null }
-                    expression { env.CHANGE_TARGET != null }
-                }
-            }
-            parallel {
-                stage ('Linux') {
-                    steps {
-                        withMaven(maven: 'Maven 3.5.4', jdk: 'jdk11', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'cx-internal', mavenOpts: '${LINUX_MVN_RANDOM}') {
-                            sh 'mvn install -B -DskipStatic=true -DskipTests=true $DISABLE_DOWNLOAD_PROGRESS_OPTS'
-                            sh 'mvn clean install -B -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET $DISABLE_DOWNLOAD_PROGRESS_OPTS'
-                        }
-                    }
+                if (params.RELEASE == true) {
+                  if (params.RELEASE_VERSION != 'NA') {
+                      env.RELEASE_VERSION = params.RELEASE_VERSION
+                  } else {
+                      echo ("Setting release version to ${getBaseVersion()}")
+                      env.RELEASE_VERSION = getBaseVersion()
+                  }
+                  if (params.RELEASE_TAG != 'NA') {
+                      env.RELEASE_TAG = params.RELEASE_TAG
+                  } else {
+                      echo("Setting release tag")
+                      env.RELEASE_TAG = "${env.GITHUB_REPONAME}-${env.RELEASE_VERSION}"
+                  }
+                  if (params.NEXT_VERSION != 'NA') {
+                      env.NEXT_VERSION = params.NEXT_VERSION
+                  } else {
+                      echo("Setting next version")
+                      env.NEXT_VERSION = getDevelopmentVersion()
+                  }
+                  echo("Release parameters: release-version: ${env.RELEASE_VERSION} release-tag: ${env.RELEASE_TAG} next-version: ${env.NEXT_VERSION}")
                 }
             }
         }
@@ -198,38 +161,6 @@ pipeline {
                 withMaven(maven: 'Maven 3.5.4', jdk: 'jdk11', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'cx-internal', mavenOpts: '${LINUX_MVN_RANDOM}') {
                     sh 'mvn javadoc:aggregate -B -DskipStatic=true -DskipTests=true -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                     sh 'mvn deploy -B -DskipStatic=true -DskipTests=true -DretryFailedDeploymentCount=10 -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS'
-                }
-            }
-        }
-    }
-    post {
-        success {
-            slackSend color: 'good', message: "SUCCESS: ${JOB_NAME} ${BUILD_NUMBER}"
-            withCredentials([usernameColonPassword(credentialsId: 'cxbot', variable: 'GITHUB_TOKEN')]) {
-                postCommentIfPR("✅ Build success! See the job results in [legacy Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${GITHUB_TOKEN}")
-                script {
-                    def jsonBlob = getGithubStatusJsonBlob("success", "${BUILD_URL}display/redirect", "Full build succeeded!", "CX Jenkins/Full Build")
-                    postStatusToHash("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
-                }
-            }
-        }
-        failure {
-            slackSend color: '#ea0017', message: "FAILURE: ${JOB_NAME} ${BUILD_NUMBER}. See the results here: ${BUILD_URL}"
-            withCredentials([usernameColonPassword(credentialsId: 'cxbot', variable: 'GITHUB_TOKEN')]) {
-                postCommentIfPR("❌ Build failure. See the job results in [legacy Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${GITHUB_TOKEN}")
-                script {
-                    def jsonBlob = getGithubStatusJsonBlob("failure", "${BUILD_URL}display/redirect", "Full Build Failed!", "CX Jenkins/Full Build")
-                    postStatusToHash("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
-                }
-            }
-        }
-        unstable {
-            slackSend color: '#ffb600', message: "UNSTABLE: ${JOB_NAME} ${BUILD_NUMBER}. See the results here: ${BUILD_URL}"
-            withCredentials([usernameColonPassword(credentialsId: 'cxbot', variable: 'GITHUB_TOKEN')]) {
-                postCommentIfPR("⚠️ Build unstable. See the job results in [legacy Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${GITHUB_TOKEN}")
-                script {
-                    def jsonBlob = getGithubStatusJsonBlob("failure", "${BUILD_URL}display/redirect", "Full build was unstable!", "CX Jenkins/Full Build")
-                    postStatusToHash("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
                 }
             }
         }
