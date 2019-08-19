@@ -19,6 +19,9 @@ info:
     name: GNU Lesser General Public License
     url: 'http://www.gnu.org/licenses/lgpl.html'
 
+servers:
+  - url: ${rest.server.url}
+
 paths:
   /ingest:
     post:

@@ -22,6 +22,7 @@
     <packaging>pom</packaging>
 
     <properties>
+        <rest.server.url>https://localhost:9040</rest.server.url>
         <rest.package>${root.package}.rest</rest.package>
         <rest.models.package>${root.package}.rest.models</rest.models.package>
     </properties>
