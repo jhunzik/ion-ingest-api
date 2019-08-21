@@ -16,7 +16,7 @@
         <version>0.4.2-SNAPSHOT</version>
     </parent>
 
-    <name>Ingest Rest Open API Specification</name>
+    <name>Ingest API :: REST Specification</name>
 
     <artifactId>ingest-api-rest-specs</artifactId>
     <packaging>pom</packaging>
